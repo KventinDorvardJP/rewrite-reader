@@ -1,7 +1,7 @@
 const canvas = { width: 1280, height: 720 };
 
 const defaults = {
-  x: 160, y: 526, width: 960, height: 140,
+  x: 160, y: 526, height: 140,
   font: 'MS Gothic', fontSize: 28, characterAdvance: 28, lineHeight: 42,
   fit: 'contain', offsetX: 0, offsetY: 0, modifier: 'shift',
 };
@@ -13,6 +13,9 @@ function calibration(overrides = {}) {
     throw new Error('Calibration must be a JSON object.');
   }
   const profile = { ...defaults, ...overrides };
+  // The calibrated game fits 26 fullwidth cells on the first row. Leave room
+  // for fractional font metrics without fitting another cell.
+  if (!Object.hasOwn(overrides, 'width')) profile.width = Math.round(profile.characterAdvance * 26.5);
   for (const key of ['x', 'y', 'width', 'height', 'fontSize', 'characterAdvance', 'lineHeight', 'offsetX', 'offsetY']) {
     if (!Number.isFinite(profile[key])) throw new Error(`Calibration ${key} must be a number.`);
   }
@@ -47,4 +50,20 @@ function dialoguePoint(snapshot, dipClient, profile) {
   return { x: cursorX, y: cursorY };
 }
 
-module.exports = { modifiers, calibration, canvasTransform, dialoguePoint };
+function popupWheelRect(bounds, physicalWidth, physicalHeight) {
+  if (!bounds) return [0, 0, 0, 0];
+  const { left, top, right, bottom, width, height } = bounds;
+  if (![left, top, right, bottom, width, height].every(Number.isFinite) || width <= 0 || height <= 0) {
+    return [0, 0, 0, 0];
+  }
+  const x = physicalWidth / width;
+  const y = physicalHeight / height;
+  const clip = (value, limit) => Math.max(0, Math.min(limit, value));
+  const edges = [
+    Math.ceil(clip(left, width) * x), Math.ceil(clip(top, height) * y),
+    Math.floor(clip(right, width) * x), Math.floor(clip(bottom, height) * y),
+  ];
+  return edges[0] < edges[2] && edges[1] < edges[3] ? edges : [0, 0, 0, 0];
+}
+
+module.exports = { modifiers, calibration, canvasTransform, dialoguePoint, popupWheelRect };

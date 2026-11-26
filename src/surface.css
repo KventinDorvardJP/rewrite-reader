@@ -22,13 +22,27 @@ body.harness {
 
 #dialogue {
   position: absolute;
+  box-sizing: border-box;
   overflow: hidden;
   color: transparent;
   white-space: pre-wrap;
   line-break: strict;
   overflow-wrap: anywhere;
+  font-kerning: none;
+  text-spacing-trim: space-all;
+  text-autospace: no-autospace;
   pointer-events: auto;
+}
+
+#dialogue.quoted {
+  padding-inline-start: var(--character-advance);
+  text-indent: calc(-1 * var(--character-advance));
 }
 
 .harness #dialogue { color: #fff7da; text-shadow: 1px 2px #0a1218; }
 .debug #dialogue { color: #ff5555a8; outline: 1px solid #ff5555b8; }
+
+iframe.yomitan-popup:not([data-rewrite-popup-ready]) {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}

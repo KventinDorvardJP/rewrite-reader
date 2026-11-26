@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
-const { calibration, canvasTransform, dialoguePoint } = require('../src/layout.cjs');
+const { calibration, canvasTransform, dialoguePoint, popupWheelRect } = require('../src/layout.cjs');
 
 test('a native-size client maps the Rewrite+ canvas without scaling', () => {
   assert.deepEqual(canvasTransform({ width: 1280, height: 720 }, calibration()), {
@@ -40,4 +40,17 @@ test('invalid geometry and lookup keys are rejected at startup', () => {
   assert.throws(() => calibration({ lineHeight: 0 }), /positive/);
   assert.throws(() => calibration({ fontSize: '28' }), /number/);
   assert.throws(() => calibration({ modifier: 'escape' }), /modifier/);
+});
+
+test('the Rewrite+ wrap width follows the calibrated character advance unless explicitly set', () => {
+  assert.equal(calibration({ characterAdvance: 30.2 }).width, 800);
+  assert.equal(calibration({ characterAdvance: 30.2, width: 810 }).width, 810);
+});
+
+test('the wheel region maps to physical pixels and clips to the displayed client', () => {
+  const bounds = { left: 50.1, top: -12, right: 402.9, bottom: 150, width: 400, height: 200 };
+  assert.deepEqual(popupWheelRect(bounds, 500, 250), [63, 0, 500, 187]);
+  assert.deepEqual(popupWheelRect({ ...bounds, left: 405 }, 500, 250), [0, 0, 0, 0]);
+  assert.deepEqual(popupWheelRect({ ...bounds, width: 0 }, 500, 250), [0, 0, 0, 0]);
+  assert.deepEqual(popupWheelRect(null, 500, 250), [0, 0, 0, 0]);
 });

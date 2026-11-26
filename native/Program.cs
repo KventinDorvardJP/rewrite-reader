@@ -2,10 +2,11 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 
-if (args.Length != 2 || (args[0] != "game" && !long.TryParse(args[0], out _)) ||
+bool liveDialogue = args.Length == 4 && args[3] == "--live-dialogue";
+if ((args.Length != 3 && !liveDialogue) || args[2] != "--popup-wheel" || (args[0] != "game" && !long.TryParse(args[0], out _)) ||
     !int.TryParse(args[1], out int virtualKey))
 {
-    Console.Error.WriteLine("Usage: Tracker <game|decimal harness HWND> <virtual key>");
+    Console.Error.WriteLine("Usage: Tracker <game|decimal harness HWND> <virtual key> --popup-wheel [--live-dialogue]");
     return 1;
 }
 
@@ -24,13 +25,16 @@ if (target == IntPtr.Zero || !Win32.IsWindow(target))
 }
 
 Win32.GetWindowThreadProcessId(target, out uint targetProcess);
+int pendingWheelDelta = 0;
 if (Console.IsInputRedirected)
 {
-    var presentation = new Thread(LayeredOverlay.Run) { IsBackground = true };
+    var presentation = new Thread(() => LayeredOverlay.Run(target, virtualKey,
+        delta => Interlocked.Add(ref pendingWheelDelta, delta))) { IsBackground = true };
     presentation.SetApartmentState(ApartmentState.STA);
     presentation.Start();
 }
 Snapshot? previous = null;
+bool wasEscapeHeld = false, wasRightClickHeld = false;
 while (Win32.IsWindow(target))
 {
     Win32.GetWindowThreadProcessId(target, out uint currentProcess);
@@ -52,6 +56,20 @@ while (Win32.IsWindow(target))
             Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(snapshot));
             previous = snapshot;
         }
+
+        if (liveDialogue)
+        {
+            bool escapeHeld = foreground && (Win32.GetAsyncKeyState(0x1B) & 0x8000) != 0;
+            bool rightClickHeld = foreground && (Win32.GetAsyncKeyState(0x02) & 0x8000) != 0;
+            if ((escapeHeld && !wasEscapeHeld) || (rightClickHeld && !wasRightClickHeld))
+                Console.WriteLine("{\"DialogueCleared\":true}");
+            wasEscapeHeld = escapeHeld;
+            wasRightClickHeld = rightClickHeld;
+        }
+
+        int delta = Interlocked.Exchange(ref pendingWheelDelta, 0);
+        if (held && delta != 0)
+            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(new WheelInput(delta, SystemInformation.MouseWheelScrollLines)));
     }
 
     Thread.Sleep(20);
@@ -61,6 +79,7 @@ return 0;
 
 readonly record struct Snapshot(int X, int Y, int Width, int Height, uint Dpi,
     bool Foreground, bool Visible, bool Held, int CursorX, int CursorY);
+readonly record struct WheelInput(int WheelDelta, int ScrollLines);
 
 [StructLayout(LayoutKind.Sequential)]
 struct Point { public int X, Y; }
