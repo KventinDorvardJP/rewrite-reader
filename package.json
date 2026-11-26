@@ -1,0 +1,14 @@
+{
+  "name": "rewrite-reader",
+  "private": true,
+  "version": "0.1.0",
+  "main": "src/main.cjs",
+  "scripts": {
+    "build:tracker": "dotnet build native -c Release",
+    "start": "node src/launch.cjs",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "electron": "44.10.1"
+  }
+}

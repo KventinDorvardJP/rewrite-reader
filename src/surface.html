@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' chrome-extension:; frame-src chrome-extension:">
+  <title>Rewrite+ overlay surface</title>
+  <link rel="stylesheet" href="surface.css">
+  <script src="surface.js" defer></script>
+</head>
+<body>
+  <div id="harness" lang="en" hidden>
+    <h1>Rewrite+ overlay test harness</h1>
+    <p>Hold Shift and hover over 飽. Release Shift, then click the counter.</p>
+    <p>While this window is focused, Space also increments the counter.</p>
+    <button id="counter" type="button">Input received: 0</button>
+  </div>
+  <div id="canvas"><div id="dialogue"></div></div>
+</body>
+</html>
