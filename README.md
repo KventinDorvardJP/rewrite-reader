@@ -1,5 +1,9 @@
 # Rewrite+ Yomitan Overlay
 
+## Screenshot
+
+![Yomitan dictionary lookup over Rewrite+ dialogue](docs/images/overlay.png)
+
 The companion shows Yomitan’s popup over Rewrite+ using either a fixed test line or live dialogue from LunaTranslator. The test harness renders the fixed line in a regular window. The companion lays out transparent text in an offscreen Yomitan renderer and presents the popup through a click-through Win32 overlay.
 
 ```text
@@ -97,4 +101,10 @@ Create `calibration.json` in the repository root to save overrides. Leave out an
 
 The GameSentenceMiner bundle, Yomitan, Yomitan API, YomiNinja, and LunaTranslator are GPL-3.0 projects. Electron is MIT. JMdict’s archive is CC BY-SA 4.0. This repo keeps external code and test dictionaries outside version control. [GameSentenceMiner license](https://github.com/bpwhelan/GameSentenceMiner/blob/main/LICENSE) [Yomitan license](https://github.com/yomidevs/yomitan/blob/master/LICENSE) [Electron license](https://github.com/electron/electron/blob/main/LICENSE) [JMdict attribution](https://github.com/yomidevs/jmdict-yomitan)
 
-Run `npm.cmd test` for coordinates, calibration, lookup dismissal, and live feed reconnect checks. The Windows 11 test session used 125% display scaling. The tracker measured the game’s displayed client at 1600 × 900 physical pixels while the game reported 96 DPI. The in-game font dialog showed ＭＳ ゴシック and the proportional-font checkbox was unchecked. The red guide was aligned on the fixed test line, and the user confirmed that it followed new dialogue from LunaTranslator in Rewrite+. In the harness, a physical Shift-hover showed the **飽きる【あきる】** popup, the wheel scrolled it, and releasing Shift restored normal wheel input. Multiline alignment in the game, automatic menu detection, and representative gameplay performance require further verification.
+## Verification
+
+Run `npm.cmd test` for coordinates, calibration, lookup dismissal, and live feed reconnect checks. The Windows 11 test session used 125% display scaling. The tracker measured the game’s displayed client at 1600 × 900 physical pixels while the game reported 96 DPI. The in-game font dialog showed ＭＳ ゴシック and the proportional-font checkbox was unchecked. The red guide was aligned on the fixed test line, and the user confirmed that it followed new dialogue from LunaTranslator in Rewrite+. In the harness, a physical Shift-hover showed the **飽きる【あきる】** popup, the wheel scrolled it, and releasing Shift restored normal wheel input.
+
+The player confirmed that wrapped dialogue worked in the live game and reported no issues across multiple Rewrite+ play sessions with different display setups on November 26–27, 2026.
+
+Dedicated checks for window minimize and restore, game shutdown, and automatic menu detection remain open. CPU/GPU use and popup latency during representative gameplay still need to be measured.
