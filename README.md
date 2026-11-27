@@ -2,7 +2,7 @@
 
 ## Screenshot
 
-![Yomitan dictionary lookup over Rewrite+ dialogue](docs/images/overlay.png)
+![Yomitan dictionary lookup over Rewrite+ dialogue](docs/images/overlay.jpg)
 
 The companion shows Yomitan’s popup over Rewrite+ using either a fixed test line or live dialogue from LunaTranslator. The test harness renders the fixed line in a regular window. The companion lays out transparent text in an offscreen Yomitan renderer and presents the popup through a click-through Win32 overlay.
 
